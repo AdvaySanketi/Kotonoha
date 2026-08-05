@@ -1,0 +1,9 @@
+.speak {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg-muted); border: 1px solid var(--border);
+  font-size: 14px; color: var(--ink-2); flex-shrink: 0;
+  transition: background 0.12s, transform 0.1s;
+}
+.speak:hover { background: var(--blue-bg); color: var(--blue); }
+.speak:active { transform: scale(0.92); }

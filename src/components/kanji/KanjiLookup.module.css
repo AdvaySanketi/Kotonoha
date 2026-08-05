@@ -1,0 +1,61 @@
+.controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; }
+.search {
+  padding: 10px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-card);
+  font-size: 15px; color: var(--ink); outline: none; width: 100%;
+}
+.search:focus { border-color: var(--ink-3); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.kanjiCard {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem;
+  box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px;
+}
+.kanji { font-size: 52px; line-height: 1; color: var(--ink); }
+.lvl { align-self: flex-start; margin-bottom: 2px; }
+.meaning { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+.readings { display: flex; flex-direction: column; gap: 3px; }
+.reading { display: flex; align-items: baseline; gap: 6px; font-size: 13px; }
+.readingLabel {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px; font-weight: 700;
+  background: var(--bg-muted); color: var(--ink-3);
+  padding: 1px 5px; border-radius: 3px; flex-shrink: 0;
+}
+.meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.metaItem {
+  font-size: 11px; background: var(--bg-muted);
+  border-radius: 4px; padding: 2px 6px; color: var(--ink-3);
+}
+.empty { grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--ink-3); font-size: 14px; }
+.kanjiCardKnown { background: var(--green-bg); border-color: rgba(46,125,94,0.25); }
+
+.startCard {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 2rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  max-width: 520px; margin: 1.5rem auto 0;
+}
+.startText { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+.scopeRow { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.resultIcon { font-size: 40px; font-family: 'Noto Sans JP', sans-serif; }
+.resultTitle { font-size: 20px; font-weight: 600; }
+.doneActions { display: flex; gap: 10px; }
+
+.quiz { max-width: 480px; margin: 1.5rem auto 0; display: flex; flex-direction: column; gap: 1.25rem; align-items: center; }
+.quizTop { width: 100%; display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+.quizCard {
+  width: 100%; aspect-ratio: 16/9; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  display: flex; align-items: center; justify-content: center;
+}
+.quizKanji { font-size: 96px; color: var(--ink); line-height: 1; }
+.optionGrid { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.option {
+  padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--bg-card); font-size: 15px; color: var(--ink); transition: all 0.12s;
+}
+.option:not(:disabled):hover { border-color: var(--ink-3); }
+.option.correct { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.option.wrong { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }

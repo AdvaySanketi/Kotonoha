@@ -1,0 +1,45 @@
+.startCard {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 2rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  max-width: 520px; margin: 1.5rem auto 0;
+}
+.startText { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+.scopeRow { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.poolNote { font-size: 12px; color: var(--ink-3); }
+.resultIcon { font-size: 40px; }
+.resultTitle { font-size: 20px; font-weight: 600; }
+.doneActions { display: flex; gap: 10px; }
+
+.quiz { max-width: 480px; margin: 1.5rem auto 0; display: flex; flex-direction: column; gap: 1.25rem; align-items: center; }
+.quizTop { width: 100%; display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+.replayBtn {
+  padding: 20px 40px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--bg-card); box-shadow: var(--shadow); font-size: 18px; color: var(--ink);
+  transition: background 0.12s;
+}
+.replayBtn:hover { background: var(--blue-bg); }
+
+.questionCard {
+  width: 100%; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.question { font-size: 16px; color: var(--ink); line-height: 1.6; }
+.optionCol { display: flex; flex-direction: column; gap: 8px; }
+.option {
+  padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--bg-card); font-size: 14px; color: var(--ink); text-align: left; transition: all 0.12s;
+}
+.option:not(:disabled):hover { border-color: var(--ink-3); background: var(--bg-muted); }
+.option.correct { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.option.wrong { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+
+.transcript {
+  width: 100%; background: var(--bg-muted); border-radius: var(--radius);
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 8px;
+}
+.transcriptLabel { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+.line { display: flex; gap: 8px; font-size: 14px; color: var(--ink); }
+.speaker { color: var(--purple); font-weight: 600; flex-shrink: 0; }
+.en { font-size: 13px; color: var(--ink-3); margin: 6px 0 4px; }
