@@ -139,7 +139,7 @@ export default function GrammarPractice() {
                 {q.before}
                 {q.chunks.map((c, i) => i === q.starIndex
                   ? <span key={i} className={styles.star}>{session.answered ? q.correct : '★'}</span>
-                  : <span key={i} className={styles.slot}>{i + 1}</span>
+                  : <span key={i} className={session.answered ? styles.slotFilled : styles.slot}>{session.answered ? c : i + 1}</span>
                 )}
                 {q.after}
               </div>

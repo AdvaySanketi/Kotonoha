@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { VOCAB_ALL, KANJI_DB, GRAMMAR_PATTERNS, READING_PASSAGES } from '../../data/content'
 import { LISTENING_CONVERSATIONS } from '../../data/listeningConversations'
-import { speakJapanese, isSpeechSupported, hasJapaneseVoice } from '../../lib/speech'
+import { speakJapanese, speakConversation, stopSpeaking, isSpeechSupported, hasJapaneseVoice } from '../../lib/speech'
 import styles from './MockExamView.module.css'
 
 function shuffle(arr) {
@@ -84,10 +84,13 @@ function buildListeningSection(level) {
 function buildListeningConvSection(level) {
   const pool = LISTENING_CONVERSATIONS.filter(c => c.level === level)
   const chosen = shuffle(pool).slice(0, Math.min(LISTENING_CONV_N, pool.length))
-  return chosen.map(item => ({
-    kind: 'listeningConv', lines: item.lines, question: item.question,
-    options: item.options, correctIndex: item.answer,
-  }))
+  return chosen.map(item => {
+    const picked = item.questions[Math.floor(Math.random() * item.questions.length)]
+    return {
+      kind: 'listeningConv', lines: item.lines, question: picked.q,
+      options: picked.options, correctIndex: picked.answer,
+    }
+  })
 }
 
 function buildExam(level, includeListening) {
@@ -116,6 +119,7 @@ export default function MockExamView() {
   const [phase, setPhase] = useState('setup') // setup | running | results
   const [exam, setExam] = useState(null) // { sections, sIndex, qIndex, answered, picked, log }
   const [timeLeft, setTimeLeft] = useState(EXAM_SECONDS)
+  const [speakingLine, setSpeakingLine] = useState(-1)
   const timerRef = useRef(null)
 
   useEffect(() => {
@@ -148,14 +152,17 @@ export default function MockExamView() {
   const currentQuestion = currentSection?.questions[exam.qIndex]
 
   useEffect(() => {
+    setSpeakingLine(-1)
     if (phase !== 'running') return
     if (currentQuestion?.kind === 'listening') {
       const t = setTimeout(() => speakJapanese(currentQuestion.kana), 300)
-      return () => clearTimeout(t)
+      return () => { clearTimeout(t); stopSpeaking() }
     }
     if (currentQuestion?.kind === 'listeningConv') {
-      const t = setTimeout(() => speakJapanese(currentQuestion.lines.map(l => l.jp).join(' '), { rate: 0.85 }), 300)
-      return () => clearTimeout(t)
+      const t = setTimeout(() => {
+        speakConversation(currentQuestion.lines, { rate: 0.85, onLineStart: setSpeakingLine, onDone: () => setSpeakingLine(-1) })
+      }, 300)
+      return () => { clearTimeout(t); stopSpeaking() }
     }
   }, [phase, currentQuestion])
 
@@ -274,7 +281,18 @@ export default function MockExamView() {
       )}
       {q.kind === 'listeningConv' && (
         <div className={styles.qCard}>
-          <button className={styles.replayBtn} onClick={() => speakJapanese(q.lines.map(l => l.jp).join(' '), { rate: 0.85 })}>🔊 Play again</button>
+          <button
+            className={styles.replayBtn}
+            onClick={() => speakConversation(q.lines, { rate: 0.85, onLineStart: setSpeakingLine, onDone: () => setSpeakingLine(-1) })}
+          >🔊 Play again</button>
+          <div className={styles.transcript} style={{ marginTop: 16 }}>
+            {q.lines.map((l, i) => (
+              <div key={i} className={styles.transcriptLine} style={i === speakingLine ? { opacity: 1, fontWeight: 600 } : { opacity: 0.55 }}>
+                <span className={styles.transcriptSpeaker}>{l.speaker}</span>
+                <span className="jp">{i === speakingLine ? l.jp : '…'}</span>
+              </div>
+            ))}
+          </div>
           <p className={`jp ${styles.qSentence}`} style={{ marginTop: 16 }}>{q.question}</p>
         </div>
       )}

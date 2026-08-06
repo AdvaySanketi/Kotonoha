@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { LISTENING_CONVERSATIONS } from '../../data/listeningConversations'
-import { speakJapanese } from '../../lib/speech'
+import { speakConversation, stopSpeaking } from '../../lib/speech'
 import styles from './ConversationListening.module.css'
 
 function shuffle(arr) {
@@ -12,22 +12,36 @@ function shuffle(arr) {
   return a
 }
 
+const ROUND_SIZE = 8
+
 export default function ConversationListening() {
   const [scope, setScope] = useState('N5')
   const [session, setSession] = useState(null)
   const [played, setPlayed] = useState(false)
+  const [speakingLine, setSpeakingLine] = useState(-1)
 
   const pool = LISTENING_CONVERSATIONS.filter(c => c.level === scope)
 
+  useEffect(() => stopSpeaking, [])
+
   const start = useCallback(() => {
     if (pool.length < 1) return
-    setSession({ items: shuffle(pool), index: 0, score: 0, answered: false, picked: null })
+    stopSpeaking()
+    // Each conversation has several possible comprehension questions;
+    // pick one at random per session so replaying a conversation doesn't
+    // always ask the same thing.
+    const items = shuffle(pool).slice(0, Math.min(ROUND_SIZE, pool.length)).map(c => {
+      const picked = c.questions[Math.floor(Math.random() * c.questions.length)]
+      return { id: c.id, level: c.level, lines: c.lines, question: picked.q, options: picked.options, answer: picked.answer, en: picked.en }
+    })
+    setSession({ items, index: 0, score: 0, answered: false, picked: null })
     setPlayed(false)
+    setSpeakingLine(-1)
   }, [pool])
 
   const play = (item) => {
     setPlayed(true)
-    speakJapanese(item.lines.map(l => l.jp).join(' '), { rate: 0.85 })
+    speakConversation(item.lines, { rate: 0.85, onLineStart: setSpeakingLine, onDone: () => setSpeakingLine(-1) })
   }
 
   const pick = (opt) => {
@@ -38,7 +52,9 @@ export default function ConversationListening() {
   }
 
   const next = () => {
+    stopSpeaking()
     setPlayed(false)
+    setSpeakingLine(-1)
     setSession(s => ({ ...s, index: s.index + 1, answered: false, picked: null }))
   }
 
@@ -54,7 +70,7 @@ export default function ConversationListening() {
               <button key={l} className={`pill ${scope === l ? 'active' : ''}`} onClick={() => setScope(l)}>{l}</button>
             ))}
           </div>
-          <p className={styles.poolNote}>{pool.length} conversation{pool.length === 1 ? '' : 's'} at {scope}</p>
+          <p className={styles.poolNote}>{Math.min(ROUND_SIZE, pool.length)} conversation{Math.min(ROUND_SIZE, pool.length) === 1 ? '' : 's'} per round, drawn from {pool.length} at {scope}</p>
           <button className="btn-primary" onClick={start} disabled={pool.length < 1}>Start</button>
         </div>
       )}
@@ -79,6 +95,15 @@ export default function ConversationListening() {
               <span>Score: {session.score}</span>
             </div>
             <button className={styles.replayBtn} onClick={() => play(item)}>🔊 {played ? 'Play again' : 'Play conversation'}</button>
+
+            {played && !session.answered && speakingLine >= 0 && (
+              <div className={styles.transcript}>
+                <div className={styles.transcriptLabel}>Now speaking</div>
+                <div className={styles.line}>
+                  <span className={styles.speaker}>{item.lines[speakingLine].speaker}</span>
+                </div>
+              </div>
+            )}
 
             {played && (
               <div className={styles.questionCard}>

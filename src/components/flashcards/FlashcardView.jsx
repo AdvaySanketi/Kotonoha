@@ -7,9 +7,9 @@ import styles from './FlashcardView.module.css'
 
 export default function FlashcardView({ mode = 'vocab' }) {
   const DECKS = mode === 'vocab' ? VOCAB_DECKS : KANJI_DECKS
-  const { sessions, srs, startDeck, startReview, flipCard, gradeCard, progress, exitSession } = useStore()
+  const { sessions, srs, startDeck, startReview, flipCard, gradeCard, commitAdvance, progress, exitSession } = useStore()
   const session = sessions[mode]
-  const { activeDeckId, reviewLabel, reviewTotal, queue, queueIndex, flipped, sessionDone } = session
+  const { activeDeckId, reviewLabel, reviewTotal, queue, queueIndex, flipped, sessionDone, pendingAdvance } = session
   const [filterLevel, setFilterLevel] = useState('all')
   const [deckTab, setDeckTab] = useState('decks') // decks | exam (vocab mode only)
 
@@ -132,7 +132,12 @@ export default function FlashcardView({ mode = 'vocab' }) {
       <div className={styles.progressBar}><div className={styles.progressFill} style={{ width: `${pct}%` }} /></div>
 
       <div className={`${styles.cardWrap} ${flipped ? '' : styles.clickable}`} onClick={!flipped ? () => flipCard(mode) : undefined}>
-        <div className={`${styles.cardInner} ${flipped ? styles.flipped : ''}`}>
+        <div
+          className={`${styles.cardInner} ${flipped ? styles.flipped : ''}`}
+          onTransitionEnd={(e) => {
+            if (e.propertyName === 'transform' && pendingAdvance) commitAdvance(mode)
+          }}
+        >
           <div className={styles.cardFront}>
             <div className={styles.frontTag}>{deckLabel} · tap to reveal</div>
             {card?.jp && <SpeakButton text={card.kana && !card.kana.includes('・') ? card.kana : card.jp} className={styles.cardSpeak} />}

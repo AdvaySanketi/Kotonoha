@@ -51,6 +51,7 @@ const emptySession = () => ({
   reviewLabel: null, // set instead of activeDeckId for cross-deck due-review sessions
   reviewTotal: 0,
   queue: [], queueIndex: 0, flipped: false, sessionDone: false,
+  pendingAdvance: null,
 })
 
 export const useStore = create(
@@ -100,7 +101,7 @@ export const useStore = create(
         const view = viewForMode(mode)
         syncHash(view)
         set(s => ({
-          sessions: { ...s.sessions, [mode]: { activeDeckId: deckId, reviewLabel: null, reviewTotal: 0, queue: sorted, queueIndex: 0, flipped: false, sessionDone: false } },
+          sessions: { ...s.sessions, [mode]: { activeDeckId: deckId, reviewLabel: null, reviewTotal: 0, queue: sorted, queueIndex: 0, flipped: false, sessionDone: false, pendingAdvance: null } },
           view,
         }))
       },
@@ -110,7 +111,7 @@ export const useStore = create(
         const view = viewForMode(mode)
         syncHash(view)
         set(s => ({
-          sessions: { ...s.sessions, [mode]: { activeDeckId: null, reviewLabel: label, reviewTotal: cards.length, queue: shuffle(cards), queueIndex: 0, flipped: false, sessionDone: false } },
+          sessions: { ...s.sessions, [mode]: { activeDeckId: null, reviewLabel: label, reviewTotal: cards.length, queue: shuffle(cards), queueIndex: 0, flipped: false, sessionDone: false, pendingAdvance: null } },
           view,
         }))
       },
@@ -119,6 +120,12 @@ export const useStore = create(
         sessions: { ...s.sessions, [mode]: { ...s.sessions[mode], flipped: !s.sessions[mode].flipped } },
       })),
 
+      // Grading flips the card back to its front immediately (so the exit
+      // animation plays), but defers actually advancing to the next card
+      // until that flip-back finishes — otherwise the next card's content
+      // swaps in mid-rotation and its back face is briefly visible before
+      // crossing the backface-visibility threshold. The component commits
+      // the advance via commitAdvance() on the flip transition's end.
       gradeCard: (mode, grade) => {
         const { sessions, progress, srs } = get()
         const session = sessions[mode]
@@ -131,9 +138,19 @@ export const useStore = create(
         const next = session.queueIndex + 1
         set(s => ({
           progress: newProgress, srs: newSrs,
-          sessions: { ...s.sessions, [mode]: { ...session, queue: newQueue, queueIndex: next, flipped: false, sessionDone: next >= newQueue.length } },
+          sessions: {
+            ...s.sessions,
+            [mode]: { ...session, flipped: false, pendingAdvance: { queue: newQueue, queueIndex: next, sessionDone: next >= newQueue.length } },
+          },
         }))
       },
+
+      commitAdvance: (mode) => set(s => {
+        const session = s.sessions[mode]
+        if (!session.pendingAdvance) return {}
+        const { queue, queueIndex, sessionDone } = session.pendingAdvance
+        return { sessions: { ...s.sessions, [mode]: { ...session, queue, queueIndex, sessionDone, pendingAdvance: null } } }
+      }),
 
       markReadingDone: (id) => set(s => ({ readingDone: { ...s.readingDone, [id]: true } })),
       markGrammarStudied: (id) => set(s => ({ grammarStudied: { ...s.grammarStudied, [id]: true } })),

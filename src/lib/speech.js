@@ -74,3 +74,39 @@ export function speakJapanese(text, { rate = 0.9 } = {}) {
   utterance.rate = rate
   synth.speak(utterance)
 }
+
+// Stops whatever is currently speaking. Callers should invoke this from
+// effect cleanups / navigation handlers so audio doesn't keep playing past
+// the question it belongs to (a pending setTimeout-delayed speakJapanese
+// call, in particular, isn't cancelled just by clearing the timeout).
+export function stopSpeaking() {
+  if (isSpeechSupported()) window.speechSynthesis.cancel()
+}
+
+// Speaks a multi-speaker conversation as a sequence of per-line utterances
+// (rather than one joined utterance) so the UI can highlight the active
+// line, and gives each distinct speaker a different pitch — browser TTS
+// only exposes one voice, so pitch is the one lever available to make
+// speakers audibly distinguishable.
+const PITCH_POOL = [1, 1.4, 0.7, 1.7]
+
+export function speakConversation(lines, { rate = 0.85, onLineStart, onDone } = {}) {
+  if (!isSpeechSupported() || !lines?.length) return
+  const synth = window.speechSynthesis
+  synth.cancel()
+  const voice = getJapaneseVoice()
+  const speakerPitch = new Map()
+  lines.forEach((line, i) => {
+    if (!speakerPitch.has(line.speaker)) {
+      speakerPitch.set(line.speaker, PITCH_POOL[speakerPitch.size % PITCH_POOL.length])
+    }
+    const utterance = new SpeechSynthesisUtterance(line.jp)
+    if (voice) utterance.voice = voice
+    utterance.lang = voice?.lang || 'ja-JP'
+    utterance.rate = rate
+    utterance.pitch = speakerPitch.get(line.speaker)
+    utterance.onstart = () => onLineStart?.(i)
+    if (i === lines.length - 1) utterance.onend = () => onDone?.()
+    synth.speak(utterance)
+  })
+}
