@@ -8,6 +8,8 @@ A personal Japanese study app built for JLPT-style reading preparation (roughly 
 
 The name comes from 言の葉 (kotonoha, literally "leaves of words") — a classical, poetic way of referring to language/words in Japanese.
 
+Access the site at [Kotonoha](https://kotonoha-jp.vercel.app/)
+
 > This is an ongoing project — I'll be pushing updates every now and then to grow the content (more exercises, more conversations, more of everything). If you want to help out, PRs are welcome.
 
 ## Features
@@ -72,45 +74,41 @@ npm run preview   # serve the production build locally
 
 ```
 src/
-  App.jsx                      # shell: sidebar nav + view routing
-  main.jsx                     # React entry point
+  App.jsx                     
+  main.jsx                     
   assets/
-    logo-icon.png                # cropped, transparent-bg app icon (sidebar); favicons in public/ are generated from it
+    logo-icon.png                
   lib/
-    speech.js                   # Web Speech API wrapper (listening practice, speak buttons)
+    speech.js                   
   store/
-    useStore.js                  # Zustand store: view state, flashcard sessions, SRS, all progress
+    useStore.js                 
   data/
-    content.js                   # reading passages; re-exports vocab/kanji/grammar data
-    vocabData.js                  # AUTO-GENERATED vocab decks + flat list — see "Content data sources"
-    kanjiData.js                   # AUTO-GENERATED kanji decks + lookup DB
-    grammarData.js                  # AUTO-GENERATED grammar patterns (N5/N4 fact-checked, N3-N1 not)
-    grammarExercises.js              # fill-in-the-blank pool, mechanically extracted from grammarData.js
-    sentenceOrder.js                  # hand-authored 文法整序 (sentence order) practice sentences
-    listeningConversations.js          # hand-authored task-based listening dialogues
-    kanaRomaji.js                       # hiragana/katakana -> romaji conversion (used by the generators)
-    kana.js                              # hiragana/katakana tables
+    content.js                  
+    vocabData.js                  
+    kanjiData.js                   
+    grammarData.js                  
+    grammarExercises.js             
+    sentenceOrder.js                  
+    listeningConversations.js          
+    kanaRomaji.js                       
+    kana.js                              
   components/
-    dashboard/                       # progress overview, due-review banner, backup export/import
-    kana/                              # hiragana/katakana chart + quiz
-    flashcards/                        # flip-card view (vocab + kanji decks, SRS review) + vocab exam-format practice
-    kanji/                              # kanji lookup/search + meaning-recall quiz
-    grammar/                             # grammar reference + fill-in-blank/sentence-order practice
-    reading/                              # reading passages, furigana toggle, comprehension checks
-    listening/                             # vocabulary listening quiz + conversation listening practice
-    exam/                                   # mock exam (mixed sections, timed, scored)
+    dashboard/                      
+    kana/                             
+    flashcards/                       
+    kanji/                              
+    grammar/                            
+    reading/                             
+    listening/                             
+    exam/                                   
     shared/
-      SpeakButton.jsx                        # reusable 🔊 button, self-hides if no JP voice found
+      SpeakButton.jsx                        
   styles/
-    global.css                    # shared tokens, layout, and primitives (buttons, badges, pills, cards)
+    global.css                   
 public/
-  logo.png                    # original source logo (README header) — not imported by app code
-  favicon*.png, apple-touch-icon.png   # generated from src/assets/logo-icon.png, see index.html
-  screenshots/                 # README screenshots
-scripts/
-  generate-vocab-data.mjs      # regenerates src/data/vocabData.js from source data
-  generate-kanji-data.mjs      # regenerates src/data/kanjiData.js from source data
-  generate-grammar-data.mjs    # regenerates src/data/grammarData.js from source data + corrections
+  logo.png                  
+  favicon*.png, apple-touch-icon.png   
+  screenshots/                 
 ```
 
 Each feature area is a self-contained folder with its own `.jsx` and CSS Module — the only shared component is `SpeakButton`. Shared primitives live in `global.css` (`.btn-primary`, `.badge`, `.pill`, `.card`, etc.) and the `.jp` class for Japanese-script text (rendered in Noto Sans JP).
@@ -168,3 +166,33 @@ Vocabulary and kanji flashcards use a Leitner-box schedule (`src/store/useStore.
 ## Backup / resetting progress
 
 Progress is stored under the `jp-study-v1` key in `localStorage` — it never leaves your machine, which also means clearing browser data deletes it. Use the **Export**/**Import** buttons on the Dashboard to back up or restore progress as a JSON file. The store also exposes a `resetProgress()` action (not currently wired to a UI button) that clears everything — or you can clear the `jp-study-v1` key directly from your browser's dev tools.
+
+## Contributing
+
+Contributions are welcome! To contribute:
+
+1. **Fork** this repository
+2. **Create a new branch**:
+   ```sh
+   git checkout -b feature/AmazingFeature
+   ```
+3. **Commit your changes**:
+   ```sh
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. **Push to the branch**:
+   ```sh
+   git push origin feature/AmazingFeature
+   ```
+5. **Open a Pull Request** 🚀
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
+
+## Support
+
+Having trouble? Want to request a feature? Here's how you can get help:
+
+- Open an issue.
+- Contact the maintainer: [Advay Sanketi](https://advay-sanketi-portfolio.vercel.app/)
